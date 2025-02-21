@@ -164,7 +164,7 @@
 
             board[index] = currentPlayer;
             e.target.textContent = currentPlayer;
-            e.target.style.backgroundColor = currentPlayer === 'X' ? '#ADD8E6' : '#FFB6C1';  // X and O color change
+            e.target.style.backgroundColor = currentPlayer === 'X' ? '#FF00FF' : '#FFB6C1';  // X and O color change
             checkWinner();
             currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
         }
@@ -193,7 +193,7 @@
 
         function showToast(message, winner) {
             toast.textContent = winner ? `${winner} Wins!` : message;
-            toast.style.backgroundColor = winner === 'X' ? '#ADD8E6' : '#FFB6C1';  // X and O win background colors
+            toast.style.backgroundColor = winner === 'X' ? '#FF00FF' : '#ff991f';  // X and O win background colors
             toast.style.display = 'block';
             toast.style.opacity = 1;
             setTimeout(() => {
