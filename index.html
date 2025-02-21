@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #FAEBD7;
+            font-family: Arial, sans-serif;
+        }
+        #developer {
+            font-size: 30px;
+            font-weight: bold;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+        }
+        #scoreboard {
+            display: flex;
+            justify-content: space-around;
+            width: 300px;
+            padding: 10px;
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            background-color: #EEE;
+            border-radius: 10px;
+        }
+        .x-score {
+            background-color: #ADD8E6;
+            padding: 5px;
+            border-radius: 5px;
+        }
+        .o-score {
+            background-color: #FFB6C1;
+            padding: 5px;
+            border-radius: 5px;
+        }
+        #board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            gap: 5px;
+        }
+        .cell {
+            width: 100px;
+            height: 100px;
+            text-align: center;
+            font-size: 48px;
+            background-color: #00FFFF;
+            border: 2px solid #333;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .cell:hover {
+            background-color: #00FF00;
+        }
+        .winner {
+            background-color: #FFD700 !important;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-right: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        #reset-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        #full-reset-btn {
+            background-color: #FF6347;
+            color: white;
+        }
+        #reset-btn:hover {
+            background-color: #45a049;
+        }
+        #full-reset-btn:hover {
+            background-color: #e55347;
+        }
+        #toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #333;
+            color: white;
+            padding: 15px;
+            font-size: 24px;
+            border-radius: 10px;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        .winner-name {
+            font-size: 28px;
+            font-weight: bold;
+            color: yellow;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="developer">Developed By: Sabbir</div>
+
+    <div id="scoreboard">
+        <div class="x-score">X Score: <span id="x-score">0</span></div>
+        <div class="o-score">O Score: <span id="o-score">0</span></div>
+    </div>
+
+    <div id="board">
+        <div class="cell" data-index="0"></div>
+        <div class="cell" data-index="1"></div>
+        <div class="cell" data-index="2"></div>
+        <div class="cell" data-index="3"></div>
+        <div class="cell" data-index="4"></div>
+        <div class="cell" data-index="5"></div>
+        <div class="cell" data-index="6"></div>
+        <div class="cell" data-index="7"></div>
+        <div class="cell" data-index="8"></div>
+    </div>
+
+    <div>
+        <button id="reset-btn" onclick="resetGame()">Reset Game</button>
+        <button id="full-reset-btn" onclick="fullResetGame()">Reset All</button>
+    </div>
+
+    <div id="toast"></div>
+
+    <script>
+        const cells = document.querySelectorAll('.cell');
+        const xScore = document.getElementById('x-score');
+        const oScore = document.getElementById('o-score');
+        const toast = document.getElementById('toast');
+        let currentPlayer = 'X';
+        let board = ['', '', '', '', '', '', '', '', ''];
+        let xPoints = 0;
+        let oPoints = 0;
+        let gameActive = true;
+
+        const winningConditions = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],
+            [0, 4, 8], [2, 4, 6]
+        ];
+
+        function handleCellClick(e) {
+            const index = e.target.getAttribute('data-index');
+            
+            if (board[index] !== '' || !gameActive) return;
+
+            board[index] = currentPlayer;
+            e.target.textContent = currentPlayer;
+            e.target.style.backgroundColor = currentPlayer === 'X' ? '#ADD8E6' : '#FFB6C1';  // X and O color change
+            checkWinner();
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+        }
+
+        function checkWinner() {
+            for (let condition of winningConditions) {
+                const [a, b, c] = condition;
+                if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                    gameActive = false;
+                    condition.forEach(index => cells[index].classList.add('winner'));
+                    setTimeout(() => {
+                        let winner = currentPlayer === 'X' ? 'O' : 'X'; // The winner is the other player
+                        showToast(`${winner} Wins!`, winner);
+                        updateScore(winner);
+                    }, 1000);
+                    break;
+                }
+            }
+            if (gameActive && board.every(cell => cell !== '')) {
+                setTimeout(() => {
+                    showToast('Draw!', '');
+                }, 1000);
+                gameActive = false;
+            }
+        }
+
+        function showToast(message, winner) {
+            toast.textContent = winner ? `${winner} Wins!` : message;
+            toast.style.backgroundColor = winner === 'X' ? '#ADD8E6' : '#FFB6C1';  // X and O win background colors
+            toast.style.display = 'block';
+            toast.style.opacity = 1;
+            setTimeout(() => {
+                toast.style.opacity = 0;
+            }, 2000);
+        }
+
+        function updateScore(winner) {
+            if (winner === 'X') {
+                xPoints++;
+                xScore.textContent = xPoints;
+            } else if (winner === 'O') {
+                oPoints++;
+                oScore.textContent = oPoints;
+            }
+        }
+
+        function resetGame() {
+            board = ['', '', '', '', '', '', '', '', ''];
+            gameActive = true;
+            currentPlayer = 'X';
+            cells.forEach(cell => {
+                cell.textContent = '';
+                cell.style.backgroundColor = '#00FFFF';
+                cell.classList.remove('winner');
+            });
+        }
+
+        function fullResetGame() {
+            resetGame();
+            xPoints = 0;
+            oPoints = 0;
+            xScore.textContent = xPoints;
+            oScore.textContent = oPoints;
+        }
+
+        cells.forEach(cell => cell.addEventListener('click', handleCellClick));
+    </script>
+
+</body>
+</html>
